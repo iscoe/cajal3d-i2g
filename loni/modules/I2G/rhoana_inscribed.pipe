@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version=".2">
+        <icons>
+                <icon id="0" value="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" />
+        </icons>
+        <moduleGroup id="Untitled_1" name="Untitled" posX="0" posY="0" sourceCode="">
+                <module id="Rhoana_1" name="Rhoana" package="CAJAL3D" version="1.0" description="This module runs 3 steps.  it cutouts out data, runs Rhoana, and uploads the resulting segments" icon="0" posX="252" posY="259" sourceCode="" location="pipeline://neuron.jhuapl.edu//mnt/pipeline/tools/CAJAL3D/packages/rhoanaAPL/rhoana_wrapper.py" executableVersion="1.0" gridVariables="-l virtual_free=12G">
+                        <authors>
+                                <author fullName="Dean Kleissas" email="dean.kleissas@jhuapl.edu" website="www.jhuapl.edu" />
+                        </authors>
+                        <tag>rhoana</tag>
+                        <tag>segmentation</tag>
+                        <tag>em</tag>
+                        <tag>neuron</tag>
+                        <tag>ramon</tag>
+                        <uri>http://www.rhoana.org/</uri>
+                        <metadata>
+                                <data key="__creationDateKey" value="Fri May 11 12:38:03 EDT 2012" />
+                        </metadata>
+                        <output id="Rhoana_1.EMCubeOutput" name="EM Cube Output" description="This is the filename where the em cube data will be saved as a RAMONVolume saved as a .mat file" required="true" enabled="true" order="11" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="mat-file" extension="mat" description="MATLAB data file" />
+                                        </fileTypes>
+                                </format>
+                        </output>
+                        <input id="Rhoana_1.QueryFiles" name="Query Files" description="This argument is .list file listing RAMONQuery objects saved as a .mat files specifying the cutout needed to be processed." required="true" enabled="true" order="9" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="list file" extension="list" description="list file for LONI" />
+                                        </fileTypes>
+                                </format>
+                        </input>
+                        <input id="Rhoana_1.ImageToken" name="Image Token" description="Database token of the image database that em data will be cut out from. Typically set via workflow variable." required="true" enabled="true" order="0" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>kasthuri11cc</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.UseSemaphore" name="Use Semaphore" description="Flag indicating if the distributed semaphore system should be used while communicating with OCP servers.  This controls the number of possible simultaneous HTTP POSTs and GETs and can be configured in the hazelcast.xml file that is specified by the environment variable 'HAZELCAST.XML'.  Default is 0 (disabled)&#xA;&#xA;0 = disabled&#xA;1 = enabled" required="true" enabled="true" order="10" prefix="-d" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="Enumerated" cardinality="1">
+                                        <enumeration>0</enumeration>
+                                        <enumeration>1</enumeration>
+                                </format>
+                                <values>
+                                        <value>1</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.AnnotationToken" name="Annotation Token" description="Database token of the annotation database that results should be written two.  Should be of type 32bit annotation." required="true" enabled="true" order="4" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>test_rhoana_inscribed</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.ImageServer" name="Image Server" description="Url of the Image data database." required="true" enabled="true" order="1" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>http://braingraph1dev.cs.jhu.edu/</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.AnnotationServer" name="Annotation Server" description="Url of the annotation data database.  Used by both the annotation token." required="true" enabled="true" order="5" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>http://braingraph1dev.cs.jhu.edu/</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.MembraneToken" name="Membrane Token" description="database token of the annotation database that contains membrane probabilities." required="true" enabled="true" order="2" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>kasthuri11_final_membranes</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.MembraneServer" name="Membrane Server" description="Url of the membrane annotation data database." required="true" enabled="true" order="3" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>http://braingraph1dev.cs.jhu.edu/</value>
+                                </values>
+                        </input>
+                        <input id="Rhoana_1.AuthorString" name="Author String" description="String that will be put in the author field of the RAMONSegments that get created.  Useful to keep track of how/when the segments were created." required="true" enabled="true" order="6" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="String" cardinality="1" />
+                                <values>
+                                        <value>cajal3d</value>
+                                </values>
+                        </input>
+                        <output id="Rhoana_1.EMMatrix" name="EM Matrix" description="This is the filename where the em cube data will be saved as a Matrix saved as a .mat file" required="true" enabled="true" order="12" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="mat-file" extension="mat" description="MATLAB data file" />
+                                        </fileTypes>
+                                </format>
+                        </output>
+                        <output id="Rhoana_1.MembraneMatrix" name="Membrane Matrix" description="This is the filename where the membrane data will be saved as a Matrix saved as a .mat file" required="true" enabled="true" order="13" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="mat-file" extension="mat" description="MATLAB data file" />
+                                        </fileTypes>
+                                </format>
+                        </output>
+                        <output id="Rhoana_1.AnnoMatrix" name="Anno Matrix" description="This is the filename where the annotation data will be saved as a Matix saved as a .mat file" required="true" enabled="true" order="14" prefix="-s" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="mat-file" extension="mat" description="MATLAB data file" />
+                                        </fileTypes>
+                                </format>
+                        </output>
+                        <input id="Rhoana_1.padX" name="padX" required="false" enabled="true" order="7" prefix="-d" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="Number" cardinality="1" />
+                        </input>
+                        <input id="Rhoana_1.padY" name="padY" required="false" enabled="true" order="8" prefix="-d" prefixSpaced="true" prefixAllArgs="false">
+                                <format type="Number" cardinality="1" />
+                        </input>
+                </module>
+                <variables>
+                        <variable name="imgToken">bock11</variable>
+                        <variable name="annoToken">apiUnitTestBock</variable>
+                </variables>
+        </moduleGroup>
+</pipeline>
+

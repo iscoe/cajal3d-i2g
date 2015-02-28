@@ -1,0 +1,1 @@
+python27 ./report_gen.py --quick html_report.zip 1000 1500 1000 1500 500 520 "asdf,ghd,qwer" "asdf,ghd" /mnt/pipeline/scratch/test_report/r35_c4.mat /mnt/pipeline/scratch/test_report/r35_c5.mat /mnt/pipeline/scratch/test_report/r35_c6.mat

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline version=".2">
+        <icons>
+                <icon id="0" value="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" />
+        </icons>
+        <moduleGroup id="ConvertEdgeList_1" name="Convert Edge List" package="CAJAL3D" version="1.0" posX="0" posY="0" sourceCode="">
+                <metadata>
+                        <data key="__creationDateKey" value="Thu Dec 20 11:43:30 EST 2012" />
+                </metadata>
+                <module id="ConvertEdgeList_2" name="Convert Edge List" package="CAJAL3D" version="1.0" description="This module converts and attributed edge list csv file to any other graph format supported by the OCP graph convert service.&#xA;&#xA;&quot;Input File&quot; should be a csv ending in .attredge with the format&#xA;&#xA;#column header&#xA;entry1...&#xA;entry2...&#xA;&#xA;Typically this is&#xA;#node1, node2, edge attribute, edge attribute,...&#xA;" icon="0" posX="135" posY="101" sourceCode="" location="pipeline://neuron.jhuapl.edu/packages/graph_gen/convert_edge_list_format.py" executableVersion="1.0">
+                        <authors>
+                                <author fullName="Dean Kleissas" email="dean.kleissas@jhuapl.edu" website="www.jhuapl.edu" />
+                        </authors>
+                        <tag>graph</tag>
+                        <tag>graphml</tag>
+                        <tag>edge list</tag>
+                        <tag>edge</tag>
+                        <tag>OCP</tag>
+                        <tag>open</tag>
+                        <tag>connectome</tag>
+                        <uri>http://openconnecto.me/graph-services/convert/</uri>
+                        <metadata>
+                                <data key="__creationDateKey" value="Fri May 11 12:38:03 EDT 2012" />
+                        </metadata>
+                        <input id="ConvertEdgeList_2.OutputFormat" name="Output Format" description="Database token of the image database that em data will be cut out from. Typically set via workflow variable." required="true" enabled="true" order="0">
+                                <format type="Enumerated" cardinality="1">
+                                        <enumeration>graphml</enumeration>
+                                        <enumeration>ncol</enumeration>
+                                        <enumeration>edgelist</enumeration>
+                                        <enumeration>lgl</enumeration>
+                                        <enumeration>pajek</enumeration>
+                                        <enumeration>graphhb</enumeration>
+                                        <enumeration>numpy</enumeration>
+                                        <enumeration>mat</enumeration>
+                                </format>
+                                <values>
+                                        <value>graphml</value>
+                                </values>
+                        </input>
+                        <input id="ConvertEdgeList_2.InputFile" name="Input File" description="attredge file" required="true" enabled="true" order="1">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="Attributed Edge List" extension="attredge" description="" />
+                                        </fileTypes>
+                                </format>
+                        </input>
+                        <output id="ConvertEdgeList_2.OutputFile" name="Output File" description="database token of the annotation database that contains membrane probabilities." required="true" enabled="true" order="2">
+                                <format type="File" cardinality="1">
+                                        <fileTypes>
+                                                <filetype name="File" extension="" description="Any type of data file" />
+                                        </fileTypes>
+                                </format>
+                        </output>
+                        <executableAuthors>
+                                <author fullName="Dean Kleissas" email="dean.kleissas@jhuapl.edu" website="" />
+                        </executableAuthors>
+                </module>
+                <variables>
+                        <variable name="imgToken" description="token for image db" required="true">bock11</variable>
+                        <variable name="annoToken" description="token for annotation db&#xA;" required="true">apiUnitTestBock</variable>
+                </variables>
+        </moduleGroup>
+</pipeline>
+

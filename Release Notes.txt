@@ -1,0 +1,15 @@
+###########################################################################
+#########                IMAGES TO GRAPHS Release Notes           #########
+###########################################################################
+
+### 2015-2-26 ### v0.6
+
+Release Notes: 
+ - Public release of Images to Graphs code.
+Updates:
+
+Bug Fixes:
+
+Known Issues:
+ - Code is being transitioned to a web service (e.g., EC2)
+ - Code is in a dev state - master version available shortly
