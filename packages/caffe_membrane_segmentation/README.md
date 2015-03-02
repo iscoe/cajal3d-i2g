@@ -1,10 +1,12 @@
 Overview
 -------
 
-This package contains software for classifying EM data as either "membrane" or "non-membrane" at the pixel level.  The basic approach follows that of [Ciresan] and uses convolutional neural networks (CNN) to solve the classification problem.
+This package contains software for classifying EM data as either "membrane" or "non-membrane" at the pixel level.  The basic approach follows that of [Ciresan] and uses convolutional neural networks (CNNs) to solve the classification problem.
+Note that this package is a newer implementation; our previous implementation used Theano as the underlying CNN framework.  Switching to Caffe simplifies some of the implementation and makes it a bit easier to experiment with different network configurations.
 
 [Ciresan] Ciresan, D. et. al. "Deep Nerual networks segment neuronal membranes in electron microscopy images." NIPS 2012.
 
+**Author:** Mike Pekala (mike.pekala@jhuapl.edu)
 
 Quick Start
 -------
