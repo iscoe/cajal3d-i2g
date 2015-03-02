@@ -2,7 +2,7 @@ Overview
 -------
 
 This package contains software for classifying electron microscopy (EM) data as either "membrane" or "non-membrane" at the pixel level.  The basic approach follows that of [Ciresan] and uses convolutional neural networks (CNNs) to solve the classification problem.
-Note that this package is a newer implementation; our previous implementation used Theano as the underlying CNN framework.  Switching to Caffe simplifies some of the implementation and makes it a bit easier to experiment with different network configurations.
+Note that this package is a newer implementation; our previous approach used Theano as the underlying CNN framework.  Switching to Caffe simplifies the code and makes it a bit easier to experiment with different network configurations.
 
 
 **Author:** Mike Pekala (mike.pekala@jhuapl.edu)
