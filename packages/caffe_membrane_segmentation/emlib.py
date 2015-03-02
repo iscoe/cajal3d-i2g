@@ -4,7 +4,7 @@
 
 
 ################################################################################
-# © [2014] The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
+# (c) [2014] The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
 # Contact the JHU/APL Office of Technology Transfer for any additional rights.  www.jhuapl.edu/ott
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,14 +28,17 @@ import numpy as np
 from PIL import Image
 
 from scipy.signal import convolve2d
+from scipy.io import loadmat
 
 
 
 def load_cube(dataFile, dtype='float32'):
-    if dataFile.endswith('tif') or dataFile.endswith('.tiff'):
+    if dataFile.endswith('.tif') or dataFile.endswith('.tiff'):
         return load_tiff_data(dataFile, dtype)
+    elif dataFile.endswith('.mat'):
+        return loadmat(dataFile).astype(dtype)
     else:
-        # assumpy numpy object
+        # assumpy numpy serialized object
         return np.load(dataFile).astype(dtype)
  
     

@@ -37,15 +37,8 @@
 # Feb 2015, Mike Pekala
 
 
-import sys, os, argparse, time
-import pdb
-
-import numpy as np
-
-import emlib
-
 ################################################################################
-# © [2014] The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
+# (c) [2014] The Johns Hopkins University / Applied Physics Laboratory All Rights Reserved.
 # Contact the JHU/APL Office of Technology Transfer for any additional rights.  www.jhuapl.edu/ott
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,6 +53,16 @@ import emlib
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+
+
+
+import sys, os, argparse, time
+import pdb
+
+import numpy as np
+
+import emlib
+
 
 
 def get_args():
