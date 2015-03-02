@@ -1,6 +1,7 @@
 # Demonstrates running the Caffe CNN code on various data sets of interest.
 # 
-# Assumes code will be running remotely (e.g. on our gpu cluster); hence the use of nohup
+# Assumes code will be running remotely (e.g. on our gpu cluster); hence
+# the use of nohup below
 #
 # To run on CPU (vs GPU) remove the "-gpu X" from the command line (and make sure the
 # default in the solver prototxt is CPU)
@@ -36,12 +37,6 @@ deploy-isbi2012 :
 		--output-file isbi2012/Yhat_test \
 		-gpu 1 > nohup.deploy.isbi2012 &
 
-#-------------------------------------------------------------------------------
-# ISBI 2013
-#-------------------------------------------------------------------------------
-
-# TODO
-
 
 #-------------------------------------------------------------------------------
 # Misc targets
@@ -49,9 +44,9 @@ deploy-isbi2012 :
 # Use "make tar" to create a code-only tarball or "tar-all" to include data sets.
 #-------------------------------------------------------------------------------
 tar :
-	pushd .. && tar cvf ./tocluster.tar `find ./CaffeMembranes -name \*.py -print`
-	pushd .. && tar rvf ./tocluster.tar `find ./CaffeMembranes -name \*.prototxt -print`
-	pushd .. && tar rvf ./tocluster.tar `find ./CaffeMembranes -name Makefile -print`
+	pushd .. && tar cvf ./tocluster.tar `find ./caffe_membrane_segmentation -name \*.py -print`
+	pushd .. && tar rvf ./tocluster.tar `find ./caffe_membrane_segmentation -name \*.prototxt -print`
+	pushd .. && tar rvf ./tocluster.tar `find ./caffe_membrane_segmentation -name Makefile -print`
 
 tar-all : tar
-	pushd .. && tar rvf ./tocluster.tar `find ./CaffeMembranes -name \*.tif -print`
+	pushd .. && tar rvf ./tocluster.tar `find ./caffe_membrane_segmentation -name \*.tif -print`
