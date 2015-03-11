@@ -10,9 +10,11 @@
 # February 2015, Mike Pekala
 #-------------------------------------------------------------------------------
 
+
 # Update these to match your local system configuration
 #-------------------------------------------------------------------------------
 CAFFE_DIR := ~/Apps/caffe/python
+TAR = gnutar
 
 
 # The remaining macros should be system-independent
@@ -41,16 +43,45 @@ train-isbi2012 :
 		-ub 150 \
 		--train-slices "range(0,27)" --valid-slices "range(27,31)" \
 		--snapshot-prefix $(ISBI2012_OUT_DIR) \
-		-s caffe_files/n3-solver.prototxt  > nohup.train.isbi2012 -gpu 0 &
+		-s caffe_files/n3-solver.prototxt \
+		-gpu 0 > nohup.train.isbi2012 2>&1 &
 
 deploy-isbi2012 :
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py \
 		-X isbi2012/test-volume.tif \
 		-ub 150 \
-		-s caffe_files/n3-solver.prototxt  \
-		-m $(ISBI2012_OUT_DIR)/iter_20000.caffemodel \
+		-s caffe_files/n3-solver.prototxt \
+		-m $(ISBI2012_OUT_DIR)/iter_200000.caffemodel \
 		--output-file isbi2012/Yhat_test \
-		-gpu 1 > nohup.deploy.isbi2012 &
+		-gpu 1 > nohup.deploy.isbi2012 2>&1 &
+
+
+#-------------------------------------------------------------------------------
+# Color Correction Test
+#
+# This experiment is based on ISBI 2012; however, the set up is
+# slightly different from the ISBI 2012 experiment above. Since we
+# don't have labels for the test cube, we need to split the train cube
+# into train/test (Will suggests a 50/50 split).  Also, we don't want
+# to use the pixel intensity-based classification in these
+# experiments...
+# -------------------------------------------------------------------------------
+train-cct-raw :
+	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
+		-X isbi2012/train-volume.tif \
+		-Y isbi2012/train-labels.tif  \
+		--train-slices "range(0,15)" \
+		--snapshot-prefix CCTest_Raw \
+		-s caffe_files/n3-solver.prototxt \
+		-gpu 0 > nohup.train.cct.raw 2>&1 &
+
+deploy-cct-raw :
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py \
+		-X isbi2012/train-volume.tif \
+		-s caffe_files/n3-solver.prototxt  \
+		-m CCTest_Raw/iter_200000.caffemodel \
+		--output-file isbi2012/Yhat_test \
+		-gpu 1 > nohup.deploy.cct.raw 2>&1 &
 
 
 #-------------------------------------------------------------------------------
@@ -62,11 +93,11 @@ deploy-isbi2012 :
 # subdirectory to simplify the process of creating a stand-alone tar file.
 #-------------------------------------------------------------------------------
 tar :
-	pushd .. && tar cvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.py -print`
-	pushd .. && tar rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.prototxt -print`
-	pushd .. && tar rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name Makefile -print`
+	pushd .. && $(TAR) cvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.py -print`
+	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.prototxt -print`
+	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name Makefile -print`
 
 
 tar-all : tar
 	cp $(DATA_PATH)/ISBI2012/*tif $(PACKAGE_PATH)/caffe_files/isbi2012
-	pushd .. && tar rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.tif -print`
+	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.tif -print`
