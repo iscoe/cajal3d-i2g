@@ -13,11 +13,8 @@ There are two main tasks: training a classifier and evaluating the classifier on
 
 ### Step 0: Obtain ISBI 2012 data
 
-    pushd caffe_files/isbi2012
-    ./getdata.sh
-    popd
+As of this writing, a copy of the ISBI 2012 EM data set now resides in the cajal3d-i2g data directory. These files will be copied to the appropriate location automatically in step 1, so this step is trivial.
 
-This should create three .tif files within caffe_files/isbi2012
 
 ### Step 1: Copy data and code to GPU cluster
 
@@ -26,7 +23,7 @@ This should create three .tif files within caffe_files/isbi2012
 
 
 ### Step 2: Training
-Note: you may want to run nvidia-smi on the cluster first to make sure the GPU device(s) you wish to use are free.  Also, it's a good idea to put everything on /scratch as this is locally mounted (e.g. vs /home, which is nfs mounted).
+Note: you may want to run nvidia-smi on the cluster first to make sure the GPU device(s) you wish to use are free.  Also, it's a good idea to put everything on a disk that is locally mounted (vs NFS mounted); on our cluster, this is /scratch.
 
     ssh gpucluster0
     cd /scratch/pekalmj1/isbi2012-demo
