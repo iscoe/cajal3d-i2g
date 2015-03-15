@@ -14,6 +14,8 @@ include Makefile
 
 
 CCT_TRAIN  := "range(0,15)"
+CCT_VALID  := "range(15,20)"
+CCT_TEST   := "range(20,30)"
 
 
 #-------------------------------------------------------------------------------
@@ -50,10 +52,28 @@ train-cct-default-cc :
 
 #-------------------------------------------------------------------------------
 
-deploy-cct-raw :
+valid-cct-raw :
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py \
 		-X isbi2012/train-volume.tif \
 		-s caffe_files/n3-solver.prototxt  \
 		-m CCTest_Raw/iter_200000.caffemodel \
-		--output-file isbi2012/Yhat_test \
-		-gpu 1 > nohup.deploy.cct.raw 2>&1 &
+		--output-file CCTest_Raw/Yhat_valid \
+		-gpu 1 > nohup.valid.cct.raw 2>&1 &
+
+
+valid-cct-emisac :
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py \
+		-X isbi2012/Train_EMISAC.tiff \
+		-s caffe_files/n3-solver.prototxt  \
+		-m CCTest_EMISAC/iter_200000.caffemodel \
+		--output-file CCTest_EMISAC/Yhat_valid \
+		-gpu 2 > nohup.valid.cct.emisac 2>&1 &
+
+
+valid-cct-default-cc :
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py \
+		-X isbi2012/Train_1_3_0.001.tiff \
+		-s caffe_files/n3-solver.prototxt  \
+		-m CCTest_defaultCC/iter_200000.caffemodel \
+		--output-file CCTest_defaultCC/Yhat_valid \
+		-gpu 3 > nohup.valid.cct.default.cc 2>&1 &
