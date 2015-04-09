@@ -33,7 +33,17 @@ import h5py
 
 
 
-def load_cube(dataFile, dtype='float32', key=None):
+def load_cube(dataFile, dtype='float32'):
+    """ Loads a volume of image data (e.g. EM data cube or class labels).
+
+    Uses the file extension to determine the underlying data format.
+    Note that the Matlab data format currently assumes you saved using
+    the -v7.3 flag.
+
+    dataFile  := the full filename containing the data volume
+    dtype     := data type that should be used to represent the data
+    """
+    
     # Raw TIFF data
     if dataFile.endswith('.tif') or dataFile.endswith('.tiff'):
         return load_tiff_data(dataFile, dtype)
@@ -56,7 +66,11 @@ def load_cube(dataFile, dtype='float32', key=None):
     
 
 def load_tiff_data(dataFile, dtype='float32'):
-    """ Loads data from a multilayer .tif file.  
+    """ Loads data from a multilayer .tif file.
+
+    dataFile := the tiff file name
+    dtype    := data type to use for the returned tensor
+    
     Returns result as a numpy tensor with dimensions (layers, width, height).
     """
     if not os.path.isfile(dataFile):
