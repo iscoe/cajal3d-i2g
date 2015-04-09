@@ -14,7 +14,8 @@ train-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X synapse_isbi2013/X.mat \
 		-Y synapse_isbi2013/Y.mat  \
-		--train-slices "range(50)" \
+		--train-slices "range(40)" \
+		--valid-slices "range(40,50)" \
 		--snapshot-prefix SynapseDetection \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
