@@ -1,0 +1,24 @@
+#-------------------------------------------------------------------------------
+# Synapse Classification Experiment
+#
+# April 2015
+#-------------------------------------------------------------------------------
+
+
+include Makefile
+
+
+#-------------------------------------------------------------------------------
+
+train-synapse:
+	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
+		-X synapse_isbi2013/X.mat \
+		-Y synapse_isbi2013/Y.mat  \
+		--train-slices "range(50)" \
+		--snapshot-prefix SynapseDetection \
+		-s caffe_files/n3-solver.prototxt \
+		-gpu 1 > nohup.train.synapse 2>&1 &
+
+tar-synapse : tar
+	cp $(DATA_PATH)/Synapse/?.mat $(PACKAGE_PATH)/caffe_files/synapse_isbi2013
+	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.mat -print`
