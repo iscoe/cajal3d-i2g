@@ -69,6 +69,7 @@ deploy-isbi2012 :
 # subdirectory to simplify the process of creating a stand-alone tar file.
 #-------------------------------------------------------------------------------
 tar :
+	\rm -f $(PACKAGE_NAME)/tocluster.tar
 	pushd .. && $(TAR) cvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.py -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.prototxt -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name Makefile* -print`
