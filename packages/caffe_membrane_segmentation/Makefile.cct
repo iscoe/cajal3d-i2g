@@ -77,3 +77,9 @@ valid-cct-default-cc :
 		-m CCTest_defaultCC/iter_200000.caffemodel \
 		--output-file CCTest_defaultCC/Yhat_valid \
 		-gpu 3 > nohup.valid.cct.default.cc 2>&1 &
+
+#-------------------------------------------------------------------------------
+
+tar-cct : tar
+	cp $(DATA_PATH)/ISBI2012/*tif $(PACKAGE_PATH)/caffe_files/isbi2012
+	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) \( -name \*.tif -o -name \*.tiff \) -print`

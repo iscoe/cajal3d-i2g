@@ -63,18 +63,11 @@ deploy-isbi2012 :
 #-------------------------------------------------------------------------------
 # Misc targets
 #
-# Use "make tar" to create a code-only tarball or "tar-all" to include data sets.
-#
-# The tar-all target copies files from the data directory into a local 
-# subdirectory to simplify the process of creating a stand-alone tar file.
+# Use "make tar" to create a code-only tarball.  Different experiments
+# may provide alternative tar targets that include data sets as well.
 #-------------------------------------------------------------------------------
 tar :
 	\rm -f $(PACKAGE_NAME)/tocluster.tar
 	pushd .. && $(TAR) cvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.py -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.prototxt -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name Makefile* -print`
-
-
-tar-all : tar
-	cp $(DATA_PATH)/ISBI2012/*tif $(PACKAGE_PATH)/caffe_files/isbi2012
-	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) \( -name \*.tif -o -name \*.tiff \) -print`
