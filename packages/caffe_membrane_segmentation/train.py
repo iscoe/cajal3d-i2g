@@ -105,6 +105,9 @@ def get_args():
     
     parser.add_argument('--snapshot-prefix', dest='snapPrefix', type=str, default='',
                         help='(optional) override the "snapshot_prefix" in the solver file')
+    
+    parser.add_argument('--omit-labels', dest='omitLabels', type=str, default='[]',
+                        help='(optional) list of labels to omit')
 
     return parser.parse_args()
 
@@ -140,7 +143,7 @@ def _xform_minibatch(X):
  
 
 
-def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir):
+def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir, omitLabels=[]):
     """Performs CNN training.
     """
     assert(batchDim[2] == batchDim[3])     # tiles must be square
@@ -188,7 +191,7 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir):
         # So the inner loop below is for a single epoch, which we may terminate
         # early if the max # of iterations is reached.
         currEpoch += 1
-        it = emlib.stratified_interior_pixel_generator(Y, tileRadius, batchDim[0], mask=M)
+        it = emlib.stratified_interior_pixel_generator(Y, tileRadius, batchDim[0], mask=M, omitLabels=omitLabels)
         for Idx, epochPct in it:
             # Map the indices Idx -> tiles Xi and labels yi
             # 
@@ -297,10 +300,15 @@ if __name__ == "__main__":
     # because they are mapped to indices at the output of the network.
     # This next bit of code remaps the native y values to these indices.
     yAll = np.sort(np.unique(Y))
-    Yhat = np.zeros(Y.shape, dtype=Y.dtype)
+    omitLabels = eval(args.omitLabels)
+    yAll = [y for y in yAll if y not in omitLabels]
+    Yhat = -1*np.ones(Y.shape, dtype=Y.dtype)   # default label is -1, which is omitted from evaluation
     for yIdx, y in enumerate(yAll):
         Yhat[Y==y] = yIdx
     Y = Yhat
+ 
+    print('[train]: yAll is %s' % str(yAll))
+    print('[train]: %d pixels will be omitted\n' % np.sum(Y==-1))
 
     # mirror edges of images so that every pixel in the original data set can act
     # as a center pixel of some tile    
@@ -324,6 +332,7 @@ if __name__ == "__main__":
         nz = np.sum(Mask==0)
         print('[train]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
+    sys.stdout.flush()
 
     #----------------------------------------
     # Create the Caffe solver
@@ -361,8 +370,8 @@ if __name__ == "__main__":
     #----------------------------------------
     # Do training; save results
     #----------------------------------------
-    losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir)
-    
+    losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir, omitLabels=[-1])
+ 
     solver.net.save(str(os.path.join(outDir, 'final.caffemodel')))
     np.save(os.path.join(outDir, '%s_losses' % outDir), losses)
     np.save(os.path.join(outDir, '%s_acc' % outDir), acc)
