@@ -17,6 +17,7 @@ train-synapse:
 		--train-slices "range(50)" \
 		--snapshot-prefix SynapseDetection \
 		-s caffe_files/n3-solver.prototxt \
+		--omit-labels "[-1,]" \
 		-gpu 1 > nohup.train.synapse 2>&1 &
 
 tar-synapse : tar
