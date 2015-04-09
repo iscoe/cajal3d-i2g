@@ -194,10 +194,15 @@ def stratified_interior_pixel_generator(Y, borderSize, batchSize,
     An alternative (an approxmation) might have been random sampling...
 
     Parameters:
-      Y := a (# slices x width x height) class label tensor
+      Y          := a (# slices x width x height) class label tensor
+
+      borderSize := Specifies a border width - all pixels in this exterior border
+                    will be excluded from the return value.
+                    
+      batchSize  := The number of pixels that should be returned each iteration.
       
-      mask := a boolean tensor the same size as X where 0/false means omit
-              the corresponding pixel
+      mask       := a boolean tensor the same size as X where 0/false means omit
+                    the corresponding pixel
     """
     [s,m,n] = Y.shape
     yAll = np.unique(Y)
@@ -243,8 +248,7 @@ def stratified_interior_pixel_generator(Y, borderSize, batchSize,
 def interior_pixel_generator(X, borderSize, batchSize,
                              mask=None,
                              omitSlices=[]):
-    """An iterator over pixel indices with the property that only pixels
-    with a specified intensity will be returned.
+    """An iterator over pixel indices in the interior of an image.
 
     Warning: this is fairly memory intensive (pre-computes the entire list of indices).
 
@@ -254,10 +258,15 @@ def interior_pixel_generator(X, borderSize, batchSize,
     there is no pressing need to optimize tile extraction at the moment.
 
     Parameters:
-      X := a (# slices x width x height) image tensor
+      X          := a (# slices x width x height) image tensor
       
-      mask := a boolean tensor the same size as X where 0/false means omit
-              the corresponding pixel
+      borderSize := Specifies a border width - all pixels in this exterior border
+                    will be excluded from the return value.
+                    
+      batchSize  := The number of pixels that should be returned each iteration.
+      
+      mask       := a boolean tensor the same size as X where 0/false means omit
+                    the corresponding pixel
     """
     [s,m,n] = X.shape
         
