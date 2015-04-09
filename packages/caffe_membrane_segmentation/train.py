@@ -100,7 +100,7 @@ def get_args():
     parser.add_argument('--train-slices', dest='trainSlicesExpr', type=str, default='range(0,20)',
                         help='A python-evaluatable string indicating which slices should be used for training')
     
-    parser.add_argument('--valid-slices', dest='validSliceExpr', type=str, default='range(27,30)',
+    parser.add_argument('--valid-slices', dest='validSlicesExpr', type=str, default='[]',
                         help='A python-evaluatable string indicating which slices should be used for validation')
     
     parser.add_argument('--snapshot-prefix', dest='snapPrefix', type=str, default='',
@@ -143,7 +143,8 @@ def _xform_minibatch(X):
  
 
 
-def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir, omitLabels=[]):
+def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
+                   omitLabels=[], Xvalid=None, Yvalid=None):
     """Performs CNN training.
     """
     assert(batchDim[2] == batchDim[3])     # tiles must be square
@@ -153,6 +154,8 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir, omitLabels=[]
     tileRadius = int(batchDim[2]/2)
     Xi = np.zeros(batchDim, dtype=np.float32)
     yi = np.zeros((batchDim[0],), dtype=np.float32)
+    yMax = np.max(Y).astype(np.int32)                
+    
     losses = np.zeros((solverParam.max_iter,)) 
     acc = np.zeros((solverParam.max_iter,))
     currIter = 0
@@ -185,11 +188,14 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir, omitLabels=[]
     tic = time.time()
     
     while currIter < solverParam.max_iter:
+
+        #--------------------------------------------------
         # Each generator provides a single epoch's worth of data.
         # However, Caffe doesn't really recognize the notion of an epoch; instead,
         # they specify a number of training "iterations" (mini-batch evaluations, I assume).
         # So the inner loop below is for a single epoch, which we may terminate
         # early if the max # of iterations is reached.
+        #--------------------------------------------------
         currEpoch += 1
         it = emlib.stratified_interior_pixel_generator(Y, tileRadius, batchDim[0], mask=M, omitLabels=omitLabels)
         for Idx, epochPct in it:
@@ -254,7 +260,57 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir, omitLabels=[]
  
             if currIter >= solverParam.max_iter:
                 break  # in case we hit max_iter on a non-epoch boundary
+
+                
+        #--------------------------------------------------
+        # After each training epoch is complete, if we have validation
+        # data, evaluate it.
+        # Note: this only requires forward passes through the network
+        #--------------------------------------------------
+        if (Xvalid is not None) and (Yvalid is not None):
+            # Mask out pixels whose label we don't care about.
+            Mvalid = np.ones(Yvalid.shape, dtype=bool)
+            for yIgnore in omitLabels:
+                Mvalid[Yvalid==yIgnore] = False
+
+            print "[train]:    Evaluating on validation data (%d pixels)..." % np.sum(Mvalid)
+            Confusion = np.zeros((yMax+1, yMax+1))    # confusion matrix
+                
+            it = emlib.interior_pixel_generator(Yvalid, tileRadius, batchDim[0], mask=Mvalid)
+            for Idx, epochPct in it:
+                # Extract subtiles from validation data set
+                for jj in range(Idx.shape[0]):
+                    yi[jj] = Yvalid[ Idx[jj,0], Idx[jj,1], Idx[jj,2] ]
+                    a = Idx[jj,1] - tileRadius
+                    b = Idx[jj,1] + tileRadius + 1
+                    c = Idx[jj,2] - tileRadius
+                    d = Idx[jj,2] + tileRadius + 1
+                    Xi[jj, 0, :, :] = Xvalid[ Idx[jj,0], a:b, c:d ]
+
+                #----------------------------------------
+                # one forward pass; no backward pass
+                #----------------------------------------
+                solver.net.set_input_arrays(Xi, yi)
+                # XXX: could call preprocess() here?
+                rv = solver.net.forward()
+
+                # extract statistics 
+                Prob = np.squeeze(rv['prob'])       # matrix of estimated probabilities for each object
+                yHat = np.argmax(Prob,1)            # estimated class is highest probability in vector
+                for yTmp in range(yMax+1):          # note: assumes class labels are in {0, 1,..,n_classes-1}
+                    bits = (yi.astype(np.int32) == yTmp)
+                    for jj in range(yMax+1):
+                        Confusion[yTmp,jj] += np.sum(yHat[bits]==jj)
  
+            print '[train]: Validation reuslts:'
+            for ii in range(yMax+1):
+                precision = (1.0*Confusion[ii,ii]) / np.sum(Confusion[:,ii])
+                recall = (1.0*Confusion[ii,ii]) / np.sum(Confusion[ii,:])
+                print '    for y=%d:  cnt=%d, precision=%0.2f, recall=%0.2f' % (ii, np.sum(Confusion[ii,:]), precision, recall)
+                
+ 
+    # all done!    
+    print "[train]:    all done!"
     return losses, acc
 
     
@@ -319,9 +375,15 @@ if __name__ == "__main__":
     # Identify the subset of the data to use for training; make a copy (assumes
     # data set is not prohibitively large to make a copy)
     trainIdx = eval(args.trainSlicesExpr)
+    validIdx = eval(args.validSlicesExpr)
+    if not set(trainIdx).isdisjoint(set(validIdx)):
+        raise RuntimeError('Training and validation slices are not disjoint!')
     Xtrain = X[trainIdx,:,:]
     Ytrain = Y[trainIdx,:,:]
+    Xvalid = X[validIdx,:,:]
+    Yvalid = Y[validIdx,:,:]
     print('[train]: training data shape: %s' % str(Xtrain.shape))
+    print('[train]: validation data shape: %s' % str(Xvalid.shape))
 
     # Some pixels are trivial to classify based on their intensity.
     # We don't need a CNN for these - skip them in training (and in deploy).
@@ -370,7 +432,8 @@ if __name__ == "__main__":
     #----------------------------------------
     # Do training; save results
     #----------------------------------------
-    losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir, omitLabels=[-1])
+    losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir,
+                                 omitLabels=[-1], Xvalid=Xvalid, Yvalid=Yvalid)
  
     solver.net.save(str(os.path.join(outDir, 'final.caffemodel')))
     np.save(os.path.join(outDir, '%s_losses' % outDir), losses)
