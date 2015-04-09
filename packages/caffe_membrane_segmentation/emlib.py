@@ -29,14 +29,26 @@ from PIL import Image
 
 from scipy.signal import convolve2d
 from scipy.io import loadmat
+import h5py
 
 
 
-def load_cube(dataFile, dtype='float32'):
+def load_cube(dataFile, dtype='float32', key=None):
+    # Raw TIFF data
     if dataFile.endswith('.tif') or dataFile.endswith('.tiff'):
         return load_tiff_data(dataFile, dtype)
+
+    # Matlab data 
     elif dataFile.endswith('.mat'):
-        return loadmat(dataFile).astype(dtype)
+        # currently assumes matlab 7.3 format files - i.e. hdf
+        d = h5py.File(dataFile, 'r')
+        if len(d.keys()) > 1:
+            raise RuntimeError('mat file has more than one key - not yet supported!')
+        X = (d.values()[0])[:]
+        return X.astype(dtype)
+        #return loadmat(dataFile).astype(dtype)
+
+    # Numpy file 
     else:
         # assumpy numpy serialized object
         return np.load(dataFile).astype(dtype)
