@@ -7,20 +7,32 @@
 
 include Makefile
 
+SYN_OUT_DIR := "SynapseDetection"
+SYN_IN_DIR := "synapse_isbi2013"
 
 #-------------------------------------------------------------------------------
 
 train-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
-		-X synapse_isbi2013/X.mat \
-		-Y synapse_isbi2013/Y.mat  \
+		-X $(SYN_IN_DIR)/X.mat \
+		-Y $(SYN_IN_DIR)/Y.mat  \
 		--train-slices "range(40)" \
 		--valid-slices "range(40,50)" \
-		--snapshot-prefix SynapseDetection \
+		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 1 > nohup.train.synapse 2>&1 &
+		-gpu 3 > nohup.train.synapse 2>&1 &
+
+
+deploy-synapse:
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
+		-X $(SYN_IN_DIR)/X_test.mat \
+		-s caffe_files/n3-solver.prototxt \
+		-m $(SYN_OUT_DIR)/iter_50000.caffemodel \
+		--output-file $(SYN_OUT_DIR)/Yhat_deploy \
+		-gpu 4 > nohup.deploy.synapse 2>&1 &
+
 
 tar-synapse : tar
-	cp $(DATA_PATH)/Synapse/?.mat $(PACKAGE_PATH)/caffe_files/synapse_isbi2013
+	cp $(DATA_PATH)/SynapseISBI2013/*.mat $(PACKAGE_PATH)/caffe_files/$(SYN_IN_DIR)
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.mat -print`
