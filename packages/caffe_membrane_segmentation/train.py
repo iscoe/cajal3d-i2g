@@ -302,7 +302,7 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
                     for jj in range(yMax+1):
                         Confusion[yTmp,jj] += np.sum(yHat[bits]==jj)
  
-            print '[train]: Validation reuslts:'
+            print '[train]: Validation results:'
             for ii in range(yMax+1):
                 precision = (1.0*Confusion[ii,ii]) / np.sum(Confusion[:,ii])
                 recall = (1.0*Confusion[ii,ii]) / np.sum(Confusion[ii,:])
