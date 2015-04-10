@@ -191,7 +191,7 @@ if __name__ == "__main__":
     #----------------------------------------
     # Load and preprocess data set
     #----------------------------------------
-    X = emlib.load_tiff_data(args.dataFileName, np.float32)
+    X = emlib.load_cube(args.dataFileName, np.float32)
 
     # mirror edges of images so that every pixel in the original data set can act
     # as a center pixel of some tile    
