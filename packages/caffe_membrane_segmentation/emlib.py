@@ -154,7 +154,7 @@ def label_epsilon(Y, epsilon=3, targetClass=255):
 
 def mirror_edges(X, nPixels):
     """Given an (s x m x n) tensor X, generates a new
-       s x (m+2*nPixels) x (n+2*nPixels)
+          s x (m+2*nPixels) x (n+2*nPixels)
     tensor with an "outer border" created by mirroring pixels along
     the outer border of X
     """
@@ -240,9 +240,10 @@ def stratified_interior_pixel_generator(Y, borderSize, batchSize,
     cnt = [np.sum( (Y==y) & bitMask ) for y in yAll]
     print('[emlib]: num. pixels per class label is: %s' % str(cnt))
     cnt = min(cnt)
+    print('[emlib]: will draw %d samples from each class' % cnt)
 
     # Stratified sampling
-    Idx = np.zeros((0,3), dtype=np.int32)
+    Idx = np.zeros((0,3), dtype=np.int32)  # three columns because there are 3 dimensions in the tensor
     for y in yAll:
         tup = np.nonzero( (Y==y) & bitMask )
         Yi = np.column_stack(tup)
@@ -250,7 +251,7 @@ def stratified_interior_pixel_generator(Y, borderSize, batchSize,
         Idx = np.vstack((Idx, Yi[:cnt,:]))
 
     # one last shuffle to mix all the classes together
-    np.random.shuffle(Idx)
+    np.random.shuffle(Idx)   # note: modifies array in-place
 
     # return in subsets of size batchSize
     for ii in range(0, Idx.shape[0], batchSize):
