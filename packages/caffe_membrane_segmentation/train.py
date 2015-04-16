@@ -181,8 +181,6 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
  
     # TODO: weight decay
     # TODO: layer-specific weights
-    # TODO: evaluate performance on valid slices instead of train slices?
-    #       (complicated by the fact that pycaffe doesn't support test mode)
  
     cnnTime = 0.0                          # time spent doing core CNN operations
     tic = time.time()
@@ -303,10 +301,22 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
                         Confusion[yTmp,jj] += np.sum(yHat[bits]==jj)
  
             print '[train]: Validation results:'
-            for ii in range(yMax+1):
-                precision = (1.0*Confusion[ii,ii]) / np.sum(Confusion[:,ii])
-                recall = (1.0*Confusion[ii,ii]) / np.sum(Confusion[ii,:])
-                print '    for y=%d:  cnt=%d, precision=%0.2f, recall=%0.2f' % (ii, np.sum(Confusion[ii,:]), precision, recall)
+            print '      %s' % str(Confusion)
+            if yMax == 1:
+                # Assume a binary classification problem where 0 is non-target and 1 is target.
+                #
+                # precision := TP / (TP + FP)
+                # recall    := TP / (TP + FN)
+                #
+                #  Confusion Matrix:
+                #                  yHat=0       yHat=1
+                #     y=0           TN            FP
+                #     y=1           FN            TP
+                #
+                precision = (1.0*Confusion[1,1]) / np.sum(Confusion[:,1])
+                recall = (1.0*Confusion[1,1]) / np.sum(Confusion[1,:])
+                print '    precision=%0.2f, recall=%0.2f' % (precision, recall)
+            sys.stdout.flush()
                 
  
     # all done!    
