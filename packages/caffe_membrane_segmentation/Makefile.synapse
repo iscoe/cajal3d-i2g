@@ -14,10 +14,10 @@ SYN_IN_DIR := "synapse_isbi2013"
 
 train-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
-		-X $(SYN_IN_DIR)/X.mat \
-		-Y $(SYN_IN_DIR)/Y.mat  \
-		--train-slices "range(48)" \
-		--valid-slices "range(48,50)" \
+		-X $(SYN_IN_DIR)/X_train.mat \
+		-Y $(SYN_IN_DIR)/Y_train.mat  \
+		--train-slices "range(70)" \
+		--valid-slices "range(70,100)" \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
