@@ -16,8 +16,8 @@ train-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X $(SYN_IN_DIR)/X.mat \
 		-Y $(SYN_IN_DIR)/Y.mat  \
-		--train-slices "range(40)" \
-		--valid-slices "range(40,50)" \
+		--train-slices "range(48)" \
+		--valid-slices "range(48,50)" \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
