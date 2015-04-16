@@ -60,6 +60,7 @@ import sys, os, argparse, time
 import pdb
 
 import numpy as np
+import scipy.io
 
 import emlib
 
@@ -262,4 +263,7 @@ if __name__ == "__main__":
         Yhat[1, X < args.lb] = 0.0     # p(~membrane | very dark)
     Yhat = Yhat[:, :, borderSize:(-borderSize), borderSize:(-borderSize)]
  
+    print('[deploy]: Finished.  Saving estimates...')
     np.save(outFileName, Yhat)
+    scipy.io.savemat(outFileName+".mat", {'Yhat' : Yhat})
+    print('[deploy]: exiting...')
