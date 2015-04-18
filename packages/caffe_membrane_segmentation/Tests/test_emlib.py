@@ -78,9 +78,11 @@ class TestUtils(unittest.TestCase):
         Y = numpy.zeros((2,100,100))
         Y[:,0:20,0:20] = 1      
         Y[:,50:70,50:70] = -1
+        Z = numpy.zeros(Y.shape)
         nPos=0; nNeg=0; nTotal=0;
         for idx,pct in stratified_interior_pixel_generator(Y,0,10,omitLabels=[0]):
             slices = idx[:,0];  rows = idx[:,1];  cols = idx[:,2]
+            Z[slices,rows,cols] = Y[slices,rows,cols]
             nPos += numpy.sum(Y[slices,rows,cols] == 1)
             nNeg += numpy.sum(Y[slices,rows,cols] == -1)
             nTotal += len(slices)
@@ -88,8 +90,8 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(nPos == 20*20*2);
         self.assertTrue(nNeg == 20*20*2);
         self.assertTrue(nTotal == 20*20*2*2);
+        self.assertTrue(np.all(Y == Z))
 
-            
 
 if __name__ == "__main__":
     unittest.main()
