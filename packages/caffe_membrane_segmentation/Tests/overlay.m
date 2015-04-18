@@ -10,5 +10,5 @@ hold on;
 h = imshow(green);
 hold off;
 
-set(h, 'AlphaData', alphaImage);
+set(h, 'AlphaData', double(alphaImage));
 
