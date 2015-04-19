@@ -51,12 +51,15 @@ def load_cube(dataFile, dtype='float32'):
     # Matlab data 
     elif dataFile.endswith('.mat'):
         # currently assumes matlab 7.3 format files - i.e. hdf
+        # 
+        # Note: matlab uses fortran ordering, hence the permute/transpose here.
+        #return loadmat(dataFile).astype(dtype)
         d = h5py.File(dataFile, 'r')
         if len(d.keys()) > 1:
             raise RuntimeError('mat file has more than one key - not yet supported!')
         X = (d.values()[0])[:]
+        X = np.transpose(X, (2,1,0))   # so that tensor has shape (layers, width, height)
         return X.astype(dtype)
-        #return loadmat(dataFile).astype(dtype)
 
     # Numpy file 
     else:
