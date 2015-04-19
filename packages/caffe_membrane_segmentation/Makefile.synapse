@@ -1,6 +1,12 @@
 #-------------------------------------------------------------------------------
 # Synapse Classification Experiment
 #
+# Note: we lack labels for the first and last two slices in the
+#       training data (is not used by the 3d algorithm to avoid
+#       "edge" effects).  Hence, we discard these slices
+#       when doing training.  It shouldn't really matter because
+#       we omit all pixels with label -1 anyway.
+#
 # April 2015
 #-------------------------------------------------------------------------------
 
@@ -16,19 +22,29 @@ train-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
 		-Y $(SYN_IN_DIR)/Y_train.mat  \
-		--train-slices "range(70)" \
-		--valid-slices "range(70,100)" \
+		--train-slices "range(2,70)" \
+		--valid-slices "range(70,98)" \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
 		-gpu 3 > nohup.train.synapse 2>&1 &
 
 
+valid-synapse:
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
+		-X $(SYN_IN_DIR)/X_train.mat \
+		-s caffe_files/n3-solver.prototxt \
+		-m $(SYN_OUT_DIR)/iter_60000.caffemodel \
+		--eval-slices "range(70,98)" \
+		--output-file $(SYN_OUT_DIR)/Yhat_valid \
+		-gpu 5 > nohup.valid.synapse 2>&1 &
+
+
 deploy-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_test.mat \
 		-s caffe_files/n3-solver.prototxt \
-		-m $(SYN_OUT_DIR)/iter_50000.caffemodel \
+		-m $(SYN_OUT_DIR)/iter_60000.caffemodel \
 		--output-file $(SYN_OUT_DIR)/Yhat_deploy \
 		-gpu 4 > nohup.deploy.synapse 2>&1 &
 
