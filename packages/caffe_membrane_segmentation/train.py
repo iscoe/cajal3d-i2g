@@ -63,6 +63,7 @@ import sys, os, argparse, time
 import pdb
 
 import numpy as np
+import scipy
 
 import emlib
 
@@ -108,12 +109,15 @@ def get_args():
     
     parser.add_argument('--omit-labels', dest='omitLabels', type=str, default='[]',
                         help='(optional) list of labels to omit')
+    
+    parser.add_argument('--rotate-data', dest='rotateData', type=int, default=0,
+                        help='(optional) set to 1 to apply arbitrary rotations to tiles')
 
     return parser.parse_args()
 
 
 
-def _xform_minibatch(X):
+def _xform_minibatch(X, rotate=False):
     """Performs operations on the data tensor X that preserve the class label
     (used to synthetically increase size of data set on-the-fly).
 
@@ -121,9 +125,9 @@ def _xform_minibatch(X):
     
     Note: for some reason, some implementation of row and column reversals, e.g.
                X[:,:,::-1,:]
-          break Caffe.  Numpy must be doing something under the hood (e.g. changing
+          break PyCaffe.  Numpy must be doing something under the hood (e.g. changing
           from C order to Fortran order) to implement this efficiently which is
-          incompatible w/ Caffe.  Hence the explicit construction of X2 with order 'C'.
+          incompatible w/ PyCaffe.  Hence the explicit construction of X2 with order 'C'.
 
     X := a (# slices, # channels, rows, colums) tensor
     """
@@ -137,14 +141,18 @@ def _xform_minibatch(X):
     else:
         X2[...] = X[...]  # no transformation
 
-    # XXX: add transposes to the mix
-    
+    if rotate:
+        angle = np.random.rand() * 360.0
+        #fillColor = 255.
+        fillColor = np.max(X)
+        X2 = scipy.ndimage.rotate(X2, angle, axes=(2,3), reshape=False, cval=fillColor)
+
     return X2
  
 
 
 def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
-                   omitLabels=[], Xvalid=None, Yvalid=None):
+                   omitLabels=[], Xvalid=None, Yvalid=None, syn_func=None):
     """Performs CNN training.
     """
     assert(batchDim[2] == batchDim[3])     # tiles must be square
@@ -213,7 +221,9 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
                 Xi[jj, 0, :, :] = X[ Idx[jj,0], a:b, c:d ]
 
             # label-preserving data transformation (synthetic data generation)
-            Xi = _xform_minibatch(Xi)
+            if syn_func is not None:
+                #Xi = _xform_minibatch(Xi)
+                Xi = syn_func(Xi)
 
             #----------------------------------------
             # one forward/backward pass and update weights
@@ -362,6 +372,10 @@ if __name__ == "__main__":
     X = emlib.load_cube(args.trainFileName, np.float32)
     Y = emlib.load_cube(args.labelsFileName, np.float32)
 
+    # usually we expect fewer slices in Z than pixels in X or Y.
+    assert(X.shape[0] < X.shape[1]);
+    assert(X.shape[0] < X.shape[2]);
+
     # Class labels must be natural numbers (contiguous integers starting at 0)
     # because they are mapped to indices at the output of the network.
     # This next bit of code remaps the native y values to these indices.
@@ -406,6 +420,13 @@ if __name__ == "__main__":
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
     sys.stdout.flush()
 
+    # choose how synthetic data generation will be done
+    if args.rotateData:
+        syn_func = lambda V: _xform_minibatch(V, True)
+        print('[train]:   WARNING: applying arbitrary rotations to data.  This may degrade performance for a vanilla CNN...\n')
+    else:
+        syn_func = lambda V: _xform_minibatch(V, False)
+
     #----------------------------------------
     # Create the Caffe solver
     #----------------------------------------
@@ -443,7 +464,7 @@ if __name__ == "__main__":
     # Do training; save results
     #----------------------------------------
     losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir,
-                                 omitLabels=[-1], Xvalid=Xvalid, Yvalid=Yvalid)
+                                 omitLabels=[-1], Xvalid=Xvalid, Yvalid=Yvalid, syn_func=syn_func)
  
     solver.net.save(str(os.path.join(outDir, 'final.caffemodel')))
     np.save(os.path.join(outDir, '%s_losses' % outDir), losses)

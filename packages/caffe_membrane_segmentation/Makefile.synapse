@@ -24,6 +24,7 @@ train-synapse:
 		-Y $(SYN_IN_DIR)/Y_train.mat  \
 		--train-slices "range(2,70)" \
 		--valid-slices "range(70,98)" \
+		--rotate-data 1 \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
