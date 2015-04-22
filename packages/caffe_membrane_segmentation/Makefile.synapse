@@ -35,7 +35,7 @@ valid-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
 		-s caffe_files/n3-solver.prototxt \
-		-m $(SYN_OUT_DIR)/iter_60000.caffemodel \
+		-m $(SYN_OUT_DIR)/iter_80000.caffemodel \
 		--eval-slices "range(70,98)" \
 		--output-file $(SYN_OUT_DIR)/Yhat_valid \
 		-gpu 5 > nohup.valid.synapse 2>&1 &
@@ -45,7 +45,7 @@ deploy-synapse:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_test.mat \
 		-s caffe_files/n3-solver.prototxt \
-		-m $(SYN_OUT_DIR)/iter_60000.caffemodel \
+		-m $(SYN_OUT_DIR)/iter_80000.caffemodel \
 		--output-file $(SYN_OUT_DIR)/Yhat_deploy \
 		-gpu 4 > nohup.deploy.synapse 2>&1 &
 
