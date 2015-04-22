@@ -14,7 +14,8 @@
 # Update these to match your local system configuration
 #-------------------------------------------------------------------------------
 CAFFE_DIR := ~/Apps/caffe/python
-TAR = gnutar
+#TAR = gnutar
+TAR = tar
 
 
 # The remaining macros should be system-independent
