@@ -275,7 +275,7 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
         # data, evaluate it.
         # Note: this only requires forward passes through the network
         #--------------------------------------------------
-        if (Xvalid is not None) and (Yvalid is not None):
+        if (Xvalid is not None) (Xvalid.size != 0) and (Yvalid is not None) and (Yvalid.size !=0):
             # Mask out pixels whose label we don't care about.
             Mvalid = np.ones(Yvalid.shape, dtype=bool)
             for yIgnore in omitLabels:
