@@ -133,6 +133,11 @@ def _eval_cube(net, X, M, batchDim, bandSpec, extractFeat=True):
         Xprime = np.zeros((nFeats, X.shape[0], X.shape[1], X.shape[2]))
     else:
         Xprime = None
+        
+    print "[deploy]: Yhat shape: %s" % str(Yhat.shape)
+    if Xprime is not None:
+        print "[deploy]: Xprime shape: %s" % str(Xprime.shape)
+    sys.stdout.flush()
 
     #--------------------------------------------------
     # process the cube
@@ -277,6 +282,8 @@ if __name__ == "__main__":
             net.set_mode_cpu()
         net.set_phase_train()
 
+    sys.stdout.flush()
+    
     #----------------------------------------
     # Do it
     #----------------------------------------
