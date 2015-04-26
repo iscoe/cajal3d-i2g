@@ -69,18 +69,27 @@ deploy-test:
 		-X $(SYN_IN_DIR)/X_test.mat \
 		-s caffe_files/n3-solver.prototxt \
 		-m $(MODEL) \
-		--yhat-file $(SYN_OUT_DIR)/Yhat_deploy \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_test \
 		-gpu 4 > nohup.deploy.synapse 2>&1 &
 
+
+extract-train:
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
+		-X $(SYN_IN_DIR)/X_train.mat \
+		-s caffe_files/n3-solver.prototxt \
+		-m $(MODEL) \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_train \
+		--feature-file $(SYN_OUT_DIR)/Xprime_train \
+		-gpu 3 > nohup.extract.train.synapse 2>&1 &
 
 extract-test:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_test.mat \
 		-s caffe_files/n3-solver.prototxt \
 		-m $(MODEL) \
-		--yhat-file $(SYN_OUT_DIR)/Yhat_deploy \
-		--feature-file $(SYN_OUT_DIR)/Xprime_deploy \
-		-gpu 4 > nohup.extract.synapse 2>&1 &
+		--yhat-file $(SYN_OUT_DIR)/Yhat_test \
+		--feature-file $(SYN_OUT_DIR)/Xprime_test \
+		-gpu 4 > nohup.extract.test.synapse 2>&1 &
 
 
 tar-synapse : tar
