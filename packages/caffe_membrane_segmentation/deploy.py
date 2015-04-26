@@ -1,9 +1,13 @@
 #  Runs a previously trained DNN on new electron microscopy (EM) data.
 #
-#  Assumes the network contains a layer named "prob" that contains the
-#  output probabilities for each class.
+#  *** KEY ASSUMPTIONS ***
+#  o Assumes the network contains a layer named "prob" that contains the
+#    output probabilities for each class.
+#  o If you are extracting features, assumes feature are associated with
+#    an inner product layer called "ip1"
 #
-#  Example usage: (see also Makefile)
+#
+#  EXAMPLE USAGE: (see also Makefile)
 #     PYTHONPATH=~/Apps/caffe-master/python ipython
 #     %run deploy.py  -s caffe_files/n3-solver.prototxt -m iter_04000.caffemodel -gpu 2
 #
@@ -94,24 +98,45 @@ def get_args():
                         help='upper bound for pre-processing bandpass filter')
     parser.add_argument('--eval-slices', dest='evalSliceExpr', type=str, default='',
                         help='A python-evaluatable string indicating which z-slices should be evaluated (default is to process all slices)')
-    parser.add_argument('--output-file', dest='outFileName', type=str, default='',
-                        help='Full path to output file to create (defaults to some version of the input file name)')
+    parser.add_argument('--yhat-file', dest='outFileNameY', type=str, default='',
+                        help='Probability output file (full path)')
+    parser.add_argument('--feature-file', dest='outFileNameX', type=str, default='',
+                        help='Features output file (optional)')
 
     return parser.parse_args()
 
 
 
-def _eval_cube(net, X, M, batchDim, bandSpec):
+def _eval_cube(net, X, M, batchDim, bandSpec, extractFeat=True):
+    """
+      RETURN VALUES:
+        Yhat  -  a tensor with dimensions (#classes, ...)   where "..." denotes data cube dimensions
+        Xprime - a tensor with dimensions (#features, ...)  where "..." denotes data cube dimensions
+    Dimensions of 
+    """
+    
     assert(batchDim[2] == batchDim[3])  # tiles must be square
 
-    # some variables and storage needed in the processing loop below 
+    #--------------------------------------------------
+    # initialize variables and storage needed in the processing loop below 
+    #--------------------------------------------------
     tileRadius = int(batchDim[2]/2)
     Xi = np.zeros(batchDim, dtype=np.float32)
     yDummy = np.zeros((batchDim[0],), dtype=np.float32) 
-    cnnTime = 0.0                          # time spent doing core CNN operations
-    Yhat = None
+    cnnTime = 0.0                                 # time spent doing core CNN operations
+    nClasses = net.blobs['prob'].data.shape[1]    # *** Assumes a layer called "prob"
+    nFeats = net.blobs['ip1'].data.shape[1]       # *** Assumes there is an inner product layer called "ip1"
 
+    # allocate memory for return values
+    Yhat = -1*np.ones((nClasses, X.shape[0], X.shape[1], X.shape[2]))
+    if extractFeat:
+        Xprime = np.zeros((nFeats, X.shape[0], X.shape[1], X.shape[2]))
+    else:
+        Xprime = None
+
+    #--------------------------------------------------
     # process the cube
+    #--------------------------------------------------
     tic = time.time()
     lastChatter = None
  
@@ -126,24 +151,27 @@ def _eval_cube(net, X, M, batchDim, bandSpec):
 
         _tmp = time.time()
         net.set_input_arrays(Xi, yDummy)
-        # XXX: could call preprocess() here?
         out = net.forward()
         yiHat = out['prob']
         cnnTime += time.time() - _tmp
 
-        nClasses = yiHat.shape[1]
-        if Yhat is None:  # on first iteration, create Yhat with the appropriate shape
-            Yhat = -1*np.ones((nClasses, X.shape[0], X.shape[1], X.shape[2]))
-            
         # store the per-class probability estimates.
-        # Note that on the final iteration, the size of yiHat may not match
-        # the remaining space in Yhat (unless we get lucky and the data cube
-        # size is a multiple of the mini-batch size).  This is why we slice
-        # yijHat before assigning to Yhat.
+        #
+        # * Note that on the final iteration, the size of yiHat may not match
+        #   the remaining space in Yhat (unless we get lucky and the data cube
+        #   size is a multiple of the mini-batch size).  This is why we slice
+        #   yijHat before assigning to Yhat.
         for jj in range(nClasses):
             yijHat = np.squeeze(yiHat[:,jj,:,:])   # get slice containing probabilities for class j
-            assert(len(yijHat.shape)==1)           # should be a single vector now
-            Yhat[jj, Idx[:,0], Idx[:,1], Idx[:,2]] = yijHat[:Idx.shape[0]]
+            assert(len(yijHat.shape)==1)           # should be a vector (vs tensor)
+            Yhat[jj, Idx[:,0], Idx[:,1], Idx[:,2]] = yijHat[:Idx.shape[0]]   # (*)
+
+        # for features: net.blobs['ip1'].data  should be (100,200,1,1) for batch size 100, ip output size 200
+        if Xprime is not None:
+            for jj in range(nFeats):
+                Xprimejj = np.squeeze(net.blobs['ip1'].data[:,jj,:,:])  # feature jj, all objects
+                assert(len(Xprimejj.shape)==1)           # should be a vector (vs tensor)
+                Xprime[jj, Idx[:,0], Idx[:,1], Idx[:,2]] = Xprimejj[:Idx.shape[0]]
 
         # provide feedback on progress so far    
         elapsed = (time.time() - tic) / 60.
@@ -154,7 +182,7 @@ def _eval_cube(net, X, M, batchDim, bandSpec):
 
     print('[deploy]: Finished processing cube.  Net time was: %0.2f min (%0.2f CNN min)' % (elapsed, cnnTime/60.))
 
-    return Yhat
+    return Yhat, Xprime
 
 
     
@@ -183,11 +211,13 @@ if __name__ == "__main__":
     batchDim = emlib.infer_data_dimensions(netFn)
     print('[deploy]: batch shape: %s' % str(batchDim))
 
-    if len(args.outFileName):
-        outFileName = args.outFileName
+    if len(args.outFileNameY):
+        outFileNameY = args.outFileNameY
     else:
-        outFileName = os.path.join(os.path.split(args.dataFileName)[0], 'Yhat_' + os.path.split(args.dataFileName)[-1])
-    print('[deploy]: output file will be: %s' % outFileName)
+        outFileNameY = os.path.join(os.path.split(args.dataFileName)[0], 'Yhat_' + os.path.split(args.dataFileName)[-1])
+    outFileNameX = args.outFileNameX
+    print('[deploy]: probability output file: %s' % outFileNameY)
+    print('[deploy]: features output file:    %s' % outFileNameX)
  
     #----------------------------------------
     # Load and preprocess data set
@@ -250,7 +280,8 @@ if __name__ == "__main__":
     #----------------------------------------
     # Do it
     #----------------------------------------
-    Yhat = _eval_cube(net, X, Mask, batchDim, bandSpec=[args.lb, args.ub])
+    extractFeat = True if len(outFileNameX) else False
+    Yhat, Xprime = _eval_cube(net, X, Mask, batchDim, bandSpec=[args.lb, args.ub], extractFeat=extractFeat)
  
     # Apply thresholds and chuck the border before saving.
     #
@@ -262,8 +293,14 @@ if __name__ == "__main__":
         Yhat[1, X > args.ub] = 1.0     # p(~membrane | very bright)
         Yhat[1, X < args.lb] = 0.0     # p(~membrane | very dark)
     Yhat = Yhat[:, :, borderSize:(-borderSize), borderSize:(-borderSize)]
- 
+
+     
     print('[deploy]: Finished.  Saving estimates...')
-    np.save(outFileName, Yhat)
-    scipy.io.savemat(outFileName+".mat", {'Yhat' : Yhat})
+    np.save(outFileNameY, Yhat)
+    scipy.io.savemat(outFileNameY+".mat", {'Yhat' : Yhat})
+
+    if Xprime is not None:
+        np.save(outFileNameX, Xprime)
+        scipy.io.savemat(outFileNameX+".mat", {'Xprime' : Xprime})
+    
     print('[deploy]: exiting...')
