@@ -254,7 +254,7 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
             # Deal with those now.
             #----------------------------------------
             if (currIter % solverParam.snapshot) == 0:
-                fn = os.path.join(outDir, 'iter_%05d.caffemodel' % (currIter))
+                fn = os.path.join(outDir, 'iter_%06d.caffemodel' % (currIter))
                 solver.net.save(str(fn))
 
             if isModeStep and ((currIter % solverParam.stepsize) == 0):
@@ -275,7 +275,7 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
         # data, evaluate it.
         # Note: this only requires forward passes through the network
         #--------------------------------------------------
-        if (Xvalid is not None) (Xvalid.size != 0) and (Yvalid is not None) and (Yvalid.size !=0):
+        if (Xvalid is not None) and (Xvalid.size != 0) and (Yvalid is not None) and (Yvalid.size != 0):
             # Mask out pixels whose label we don't care about.
             Mvalid = np.ones(Yvalid.shape, dtype=bool)
             for yIgnore in omitLabels:
@@ -326,7 +326,11 @@ def _training_loop(solver, X, Y, M, solverParam, batchDim, outDir,
                 precision = (1.0*Confusion[1,1]) / np.sum(Confusion[:,1])
                 recall = (1.0*Confusion[1,1]) / np.sum(Confusion[1,:])
                 print '    precision=%0.2f, recall=%0.2f' % (precision, recall)
-            sys.stdout.flush()
+        else:
+            print '[train]: Not using a validation data set'
+            
+        sys.stdout.flush()
+        # ----- end one epoch -----
                 
  
     # all done!    
