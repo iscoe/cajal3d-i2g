@@ -13,8 +13,8 @@
 
 include Makefile
 
-SYN_OUT_DIR := "SynapseDetection"
-SYN_IN_DIR := "synapse_isbi2013"
+SYN_OUT_DIR := SynapseDetection
+SYN_IN_DIR := synapse_isbi2013
 
 TRAIN_SLICES := "range(0,70)"
 VALID_SLICES := "range(70,100)"
@@ -24,7 +24,7 @@ ALL_SLICES := "range(100)"
 ROTATE := 1
 
 # the trained model to use for deploy targets
-MODEL := "$(SYN_OUT_DIR)/iter_80000.caffemodel"
+MODEL := $(SYN_OUT_DIR)/iter_80000.caffemodel
 
 
 #-------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ train-all:
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 2 > nohup.train.synapse 2>&1 &
+		-gpu 2 &> nohup.train.synapse &
 
 
 train-and-valid:
@@ -51,7 +51,7 @@ train-and-valid:
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 2 > nohup.train.synapse 2>&1 &
+		-gpu 2 &> nohup.train.synapse &
 
 
 deploy-valid:
@@ -61,7 +61,7 @@ deploy-valid:
 		-m $(MODEL) \
 		--eval-slices $(VALID_SLICES) \
 		--yhat-file $(SYN_OUT_DIR)/Yhat_valid \
-		-gpu 5 > nohup.valid.synapse 2>&1 &
+		-gpu 5 &> nohup.valid.synapse &
 
 
 deploy-test:
@@ -70,7 +70,7 @@ deploy-test:
 		-s caffe_files/n3-solver.prototxt \
 		-m $(MODEL) \
 		--yhat-file $(SYN_OUT_DIR)/Yhat_test \
-		-gpu 4 > nohup.deploy.synapse 2>&1 &
+		-gpu 4 &> nohup.deploy.synapse &
 
 
 extract-train:
@@ -80,7 +80,7 @@ extract-train:
 		-m $(MODEL) \
 		--yhat-file $(SYN_OUT_DIR)/Yhat_train \
 		--feature-file $(SYN_OUT_DIR)/Xprime_train \
-		-gpu 3 > nohup.extract.train.synapse 2>&1 &
+		-gpu 3 &> nohup.extract.train.synapse  &
 
 extract-test:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
@@ -89,7 +89,7 @@ extract-test:
 		-m $(MODEL) \
 		--yhat-file $(SYN_OUT_DIR)/Yhat_test \
 		--feature-file $(SYN_OUT_DIR)/Xprime_test \
-		-gpu 4 > nohup.extract.test.synapse 2>&1 &
+		-gpu 4 &> nohup.extract.test.synapse &
 
 
 tar-synapse : tar
