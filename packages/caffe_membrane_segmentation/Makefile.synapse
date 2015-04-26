@@ -16,38 +16,71 @@ include Makefile
 SYN_OUT_DIR := "SynapseDetection"
 SYN_IN_DIR := "synapse_isbi2013"
 
+TRAIN_SLICES := "range(0,70)"
+VALID_SLICES := "range(70,100)"
+ALL_SLICES := "range(100)"
+
+# set ROTATE to {0,1} for {fewer,more} rotations of training data
+ROTATE := 1
+
+# the trained model to use for deploy targets
+MODEL := "$(SYN_OUT_DIR)/iter_80000.caffemodel"
+
+
 #-------------------------------------------------------------------------------
 
-train-synapse:
+train-all:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
 		-Y $(SYN_IN_DIR)/Y_train.mat  \
-		--train-slices "range(2,70)" \
-		--valid-slices "range(70,98)" \
-		--rotate-data 1 \
+		--train-slices $(ALL_SLICES) \
+		--rotate-data $(ROTATE) \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 3 > nohup.train.synapse 2>&1 &
+		-gpu 2 > nohup.train.synapse 2>&1 &
 
 
-valid-synapse:
+train-and-valid:
+	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
+		-X $(SYN_IN_DIR)/X_train.mat \
+		-Y $(SYN_IN_DIR)/Y_train.mat  \
+		--train-slices $(TRAIN_SLICES) \
+		--valid-slices $(VALID_SLICES) \
+		--rotate-data $(ROTATE) \
+		--snapshot-prefix $(SYN_OUT_DIR) \
+		-s caffe_files/n3-solver.prototxt \
+		--omit-labels "[-1,]" \
+		-gpu 2 > nohup.train.synapse 2>&1 &
+
+
+deploy-valid:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
 		-s caffe_files/n3-solver.prototxt \
-		-m $(SYN_OUT_DIR)/iter_80000.caffemodel \
-		--eval-slices "range(70,98)" \
-		--output-file $(SYN_OUT_DIR)/Yhat_valid \
+		-m $(MODEL) \
+		--eval-slices $(VALID_SLICES) \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_valid \
 		-gpu 5 > nohup.valid.synapse 2>&1 &
 
 
-deploy-synapse:
+deploy-test:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_test.mat \
 		-s caffe_files/n3-solver.prototxt \
-		-m $(SYN_OUT_DIR)/iter_80000.caffemodel \
-		--output-file $(SYN_OUT_DIR)/Yhat_deploy \
+		-m $(MODEL) \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_deploy \
 		-gpu 4 > nohup.deploy.synapse 2>&1 &
+
+
+extract-test:
+	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
+		-X $(SYN_IN_DIR)/X_test.mat \
+		-s caffe_files/n3-solver.prototxt \
+		-m $(MODEL) \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_deploy \
+		--feature-file $(SYN_OUT_DIR)/Xprime_deploy \
+		-gpu 4 > nohup.extract.synapse 2>&1 &
 
 
 tar-synapse : tar
