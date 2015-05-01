@@ -1,11 +1,17 @@
 #-------------------------------------------------------------------------------
 # Synapse Classification Experiment
 #
-# Note: we lack labels for the first and last two slices in the
-#       training data (is not used by the 3d algorithm to avoid
-#       "edge" effects).  Hence, we discard these slices
-#       when doing training.  It shouldn't really matter because
-#       we omit all pixels with label -1 anyway.
+#  As of this writing, there are two training files. Y_train.mat is for the
+#  synapse-vs-all problem while Y_train2.mat is for the
+#  synapse-membranes-vs-non-synapse-membranes problem.
+#
+#     Y_train.mat  :  Held out pixels := -1
+#                     Non-synapse pixels (membrane & non-membrane) := 0
+#                     Synapse pixels := +1,
+#
+#     Y_train2.mat :  Held out pixels (includes most non-membrane data) := -1
+#                     Non-synapse membranes := 0
+#                     Synapse pixels := +1, 
 #
 # April 2015
 #-------------------------------------------------------------------------------
@@ -20,6 +26,8 @@ TRAIN_SLICES := "range(0,70)"
 VALID_SLICES := "range(70,100)"
 ALL_SLICES := "range(100)"
 
+Y_TRAIN := Y_train2.mat
+
 # set ROTATE to {0,1} for {fewer,more} rotations of training data
 ROTATE := 1
 
@@ -32,36 +40,40 @@ MODEL := $(SYN_OUT_DIR)/iter_80000.caffemodel
 train-all:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
-		-Y $(SYN_IN_DIR)/Y_train.mat  \
+		-Y $(SYN_IN_DIR)/$(Y_TRAIN)  \
 		--train-slices $(ALL_SLICES) \
 		--rotate-data $(ROTATE) \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 2 &> nohup.train.synapse &
+		-gpu 1 &> nohup.train.all.synapse &
 
 
 train-and-valid:
 	PYTHONPATH=$(CAFFE_DIR) nohup python train.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
-		-Y $(SYN_IN_DIR)/Y_train.mat  \
+		-Y $(SYN_IN_DIR)/$(Y_TRAIN) \
 		--train-slices $(TRAIN_SLICES) \
 		--valid-slices $(VALID_SLICES) \
 		--rotate-data $(ROTATE) \
 		--snapshot-prefix $(SYN_OUT_DIR) \
 		-s caffe_files/n3-solver.prototxt \
 		--omit-labels "[-1,]" \
-		-gpu 2 &> nohup.train.synapse &
+		-gpu 2 &> nohup.train.and.valid.synapse &
 
 
+# Technically we don't need to evaluate the entire training cube, just
+# the subset we hold out for validation.  However, for some purposes
+# it is convenient to assess the performance on the entire training
+# data set, so we do this here.
 deploy-valid:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
 		-s caffe_files/n3-solver.prototxt \
 		-m $(MODEL) \
-		--eval-slices $(VALID_SLICES) \
-		--yhat-file $(SYN_OUT_DIR)/Yhat_valid \
-		-gpu 5 &> nohup.valid.synapse &
+		--eval-slices $(ALL_SLICES) \
+		--yhat-file $(SYN_OUT_DIR)/Yhat_train \
+		-gpu 5 &> nohup.deploy.train.synapse &
 
 
 deploy-test:
@@ -73,6 +85,7 @@ deploy-test:
 		-gpu 4 &> nohup.deploy.synapse &
 
 
+# These next few targets are for feature extraction
 extract-train:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_train.mat \
