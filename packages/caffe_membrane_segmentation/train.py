@@ -373,7 +373,9 @@ if __name__ == "__main__":
     #----------------------------------------
     # Load and preprocess data set
     #----------------------------------------
+    print('[train]: loading file: %s' % args.trainFileName)
     X = emlib.load_cube(args.trainFileName, np.float32)
+    print('[train]: loading file: %s' % args.labelsFileName)
     Y = emlib.load_cube(args.labelsFileName, np.float32)
 
     # usually we expect fewer slices in Z than pixels in X or Y.
@@ -422,7 +424,6 @@ if __name__ == "__main__":
         nz = np.sum(Mask==0)
         print('[train]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
-    sys.stdout.flush()
 
     # choose how synthetic data generation will be done
     if args.rotateData:
@@ -467,6 +468,8 @@ if __name__ == "__main__":
     #----------------------------------------
     # Do training; save results
     #----------------------------------------
+    sys.stdout.flush()
+    
     losses, acc = _training_loop(solver, Xtrain, Ytrain, Mask, solverParam, batchDim, outDir,
                                  omitLabels=[-1], Xvalid=Xvalid, Yvalid=Yvalid, syn_func=syn_func)
  
