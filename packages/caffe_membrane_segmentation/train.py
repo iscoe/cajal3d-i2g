@@ -428,7 +428,7 @@ if __name__ == "__main__":
     # choose how synthetic data generation will be done
     if args.rotateData:
         syn_func = lambda V: _xform_minibatch(V, True)
-        print('[train]:   WARNING: applying arbitrary rotations to data.  This may degrade performance for a vanilla CNN...\n')
+        print('[train]:   WARNING: applying arbitrary rotations to data.  This may degrade performance in some cases...\n')
     else:
         syn_func = lambda V: _xform_minibatch(V, False)
 
