@@ -68,7 +68,7 @@ deploy-isbi2012 :
 # may provide alternative tar targets that include data sets as well.
 #-------------------------------------------------------------------------------
 tar :
-	\rm -f $(PACKAGE_NAME)/tocluster.tar
+	\rm -f tocluster.tar
 	pushd .. && $(TAR) cvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.py -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name \*.prototxt -print`
 	pushd .. && $(TAR) rvf $(PACKAGE_NAME)/tocluster.tar `find $(PACKAGE_NAME) -name Makefile* -print`
