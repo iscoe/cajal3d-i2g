@@ -32,7 +32,7 @@ Y_TRAIN := Y_train2.mat
 ROTATE := 1
 
 # the trained model to use for deploy targets
-MODEL := $(SYN_OUT_DIR)/iter_80000.caffemodel
+MODEL := $(SYN_OUT_DIR)/iter_080000.caffemodel
 
 
 #-------------------------------------------------------------------------------
