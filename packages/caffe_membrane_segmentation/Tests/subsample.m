@@ -4,7 +4,13 @@ function M = subsample(X, ds, method)
 %
 %   X : A a tensor with shape (x, y, z/slices)
 %   ds : a scalar downsampling factor
-%  
+%   method : Use 'xy' to downsample only in the xy plane (i.e. by slice); use
+%            'sobol' to do randomized sampling across all dimensions.
+%
+%  Presumably the values that are not processed by the CNN can be filled in
+%  by interpolation; e.g. see inpaint_nans() on the Matlab file exchange.
+%
+%  May 2015, mjp
 
 if nargin < 3, method='xy'; end
 assert(isscalar(ds) && ds > 1);
