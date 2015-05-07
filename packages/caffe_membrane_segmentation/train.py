@@ -92,11 +92,8 @@ def get_args():
                         help='Name of the file containing the EM data')
     parser.add_argument('-Y', dest='labelsFileName', type=str, required=True,
                         help='This is the file containing the class labels')
-    
-    parser.add_argument('-lb', dest='lb', type=float, default=-np.infty,
-                        help='lower bound for pre-processing bandpass filter')
-    parser.add_argument('-ub', dest='ub', type=float, default=np.infty,
-                        help='upper bound for pre-processing bandpass filter')
+    parser.add_argument('-M', dest='maskFileName', type=str, default='',
+                        help='Name of the file containing a pixel evaluation mask (optional)')
     
     parser.add_argument('--train-slices', dest='trainSlicesExpr', type=str, default='range(0,20)',
                         help='A python-evaluatable string indicating which slices should be used for training')
@@ -377,8 +374,8 @@ if __name__ == "__main__":
     Y = emlib.load_cube(args.labelsFileName, np.float32)
 
     # usually we expect fewer slices in Z than pixels in X or Y.
-    assert(X.shape[0] < X.shape[1]);
-    assert(X.shape[0] < X.shape[2]);
+    assert(X.shape[0] < X.shape[1])
+    assert(X.shape[0] < X.shape[2])
 
     # Class labels must be natural numbers (contiguous integers starting at 0)
     # because they are mapped to indices at the output of the network.
@@ -413,16 +410,21 @@ if __name__ == "__main__":
     print('[train]: training data shape: %s' % str(Xtrain.shape))
     print('[train]: validation data shape: %s' % str(Xvalid.shape))
 
-    # Some pixels are trivial to classify based on their intensity.
-    # We don't need a CNN for these - skip them in training (and in deploy).
-    Mask = np.ones(Xtrain.shape, dtype=bool)
-    Mask[Xtrain > args.ub] = 0
-    Mask[Xtrain < args.lb] = 0
+    # There may be reasons for not training on certain pixels other than
+    # class label (e.g. pixel intensity).  The mask allows the caller to
+    # specify which pixels to omit.
+    if len(args.maskFileName):
+        Mask = emlib.load_cube(args.maskFileName, dtype=np.bool)
+        Mask = emlib.mirror_edges(Mask, borderSize)
+    else:
+        Mask = np.ones(X.shape, dtype=np.bool)
+        
     if np.any(Mask == 0):
         nz = np.sum(Mask==0)
         print('[train]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
     print('[train]: mask shape: %s' % str(Mask.shape))
+    assert(np.all(Mask.shape == X.shape))
 
     # choose how synthetic data generation will be done
     if args.rotateData:

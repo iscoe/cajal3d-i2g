@@ -92,10 +92,8 @@ def get_args():
     #----------------------------------------
     parser.add_argument('-X', dest='dataFileName', type=str, default='test-volume.tif',
                         help='Name of the file containing the membrane data (i.e. X)')
-    parser.add_argument('-lb', dest='lb', type=float, default=-np.infty,
-                        help='lower bound for pre-processing bandpass filter')
-    parser.add_argument('-ub', dest='ub', type=float, default=np.infty,
-                        help='upper bound for pre-processing bandpass filter')
+    parser.add_argument('-M', dest='maskFileName', type=str, default='',
+                        help='Name of the file containing a pixel evaluation mask (optional)')
     parser.add_argument('--eval-slices', dest='evalSliceExpr', type=str, default='',
                         help='A python-evaluatable string indicating which z-slices should be evaluated (default is to process all slices)')
     parser.add_argument('--yhat-file', dest='outFileNameY', type=str, default='',
@@ -107,7 +105,7 @@ def get_args():
 
 
 
-def _eval_cube(net, X, M, batchDim, bandSpec, extractFeat=True):
+def _eval_cube(net, X, M, batchDim, extractFeat=True):
     """
       RETURN VALUES:
         Yhat  -  a tensor with dimensions (#classes, ...)   where "..." denotes data cube dimensions
@@ -239,14 +237,19 @@ if __name__ == "__main__":
         X = X[idx,:,:]
     print('[deploy]: data shape: %s' % str(X.shape))
     
-    # Some pixels are trivial to classify based on their intensity.
-    # We don't need a CNN for these - skip them in training (and in deploy).
-    Mask = np.ones(X.shape, dtype=bool)
-    Mask[X > args.ub] = 0
-    Mask[X < args.lb] = 0
+    # There may be reasons for not evaluating certain pixels.
+    # The mask allows the caller to specify which pixels to omit.
+    if len(args.maskFileName):
+        Mask = emlib.load_cube(args.maskFileName, dtype=np.bool)
+        Mask = emlib.mirror_edges(Mask, borderSize)
+    else:
+        Mask = np.ones(X.shape, dtype=np.bool)
+        
     if np.any(Mask == 0):
         nz = np.sum(Mask==0)
-        print('[deploy]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
+        print('[deploy]: mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
+    print('[deploy]: mask shape: %s' % str(Mask.shape))
+    assert(np.all(Mask.shape == X.shape))
 
     #----------------------------------------
     # Create the Caffe network
@@ -288,7 +291,7 @@ if __name__ == "__main__":
     # Do it
     #----------------------------------------
     extractFeat = True if len(outFileNameX) else False
-    Yhat, Xprime = _eval_cube(net, X, Mask, batchDim, bandSpec=[args.lb, args.ub], extractFeat=extractFeat)
+    Yhat, Xprime = _eval_cube(net, X, Mask, batchDim, extractFeat=extractFeat)
  
     # Apply thresholds and chuck the border before saving.
     #

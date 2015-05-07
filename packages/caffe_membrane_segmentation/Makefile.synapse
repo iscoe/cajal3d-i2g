@@ -31,6 +31,12 @@ Y_TRAIN := Y_train2.mat
 # set ROTATE to {0,1} for {fewer,more} rotations of training data
 ROTATE := 1
 
+# Set mask to a non-empty string (filename) if you want to specify
+# a subset of the test cube to evaluate.
+#TEST_MASK := ""
+TEST_MASK := $(SYN_IN_DIR)/M5.mat
+
+
 # the trained model to use for deploy targets
 MODEL := $(SYN_OUT_DIR)/iter_080000.caffemodel
 
@@ -79,6 +85,7 @@ deploy-valid:
 deploy-test:
 	PYTHONPATH=$(CAFFE_DIR) nohup python deploy.py  \
 		-X $(SYN_IN_DIR)/X_test.mat \
+		-M $(TEST_MASK) \
 		-s caffe_files/n3-solver.prototxt \
 		-m $(MODEL) \
 		--yhat-file $(SYN_OUT_DIR)/Yhat_test \
