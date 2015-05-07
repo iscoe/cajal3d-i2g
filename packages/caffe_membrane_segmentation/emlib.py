@@ -135,23 +135,41 @@ def infer_data_dimensions(netFn):
 
 
 
-def label_epsilon(Y, epsilon=3, targetClass=255):
+def label_epsilon(Y, epsilon=3, n=9, targetClass=255, verbose=True):
     """Given a tensor of per-pixel class labels, return a new tensor of labels
-    where the class is 1 iff all pixels in an epsilon ball are the target class.
+    where the class is 1 iff at least n pixels in an epsilon ball are the target class.
 
     Note: for the moment, a "epsilon ball" is a rectangle of radius epsilon.
+
+    Example: given a tensor of per-pixel binary class labels, we want to create
+    a new training set where the class label of a pixel is 1 if there are enough
+    pixels nearby with class 1.  However, if there are other +1 pixels nearby but
+    not enough to be considered a positive class, we also want to flag this as
+    an instance we don't want to train on (so negative examples have no +1 pixels
+    nearby).
+
+       Y = emlib.load_cube('/Users/pekalmj1/Data/SynapseData3/Y_train2.mat')
+       eps=15
+       Y1 = emlib.label_epsilon(Y, epsilon=eps, n=15, targetClass=1)
+       Yany = emlib.label_epsilon(Y, epsilon=eps, n=1, targetClass=1)  # Y may have labels other that {+1,0}
+       Yeps = np.zeros(Y.shape, dtype=np.int32)  
+       Yeps[Yany==1] = -1 
+       Yeps[Y1==1] = 1 
+       scipy.io.savemat("Yeps.mat", {'Y' : np.transpose(Yeps, (1,2,0))})
+    
     """
     if len(Y.shape) != 3:
         raise RuntimeError('Sorry - Y must be a 3d tensor')
-    
+
     Y = (Y == targetClass).astype(np.int32)
     d = 2*epsilon+1
     W = np.ones((d,d), dtype=bool)
     Yeps = np.zeros(Y.shape)
     for ii in range(Y.shape[0]):
+        if verbose: print('[label_epsilon]: processing slice %d (of %d)' % (ii, Y.shape[0]))
         tmp = convolve2d(Y[ii,...], W, boundary='symm')
         Yeps[ii,...] = tmp[epsilon:-epsilon, epsilon:-epsilon]
-    return (Yeps == d*d)
+    return (Yeps >= n)
 
 
 
