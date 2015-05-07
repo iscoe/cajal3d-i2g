@@ -121,8 +121,6 @@ def _xform_minibatch(X, rotate=False):
     """Performs operations on the data tensor X that preserve the class label
     (used to synthetically increase size of data set on-the-fly).
 
-    For now, these transforms consist of flips and/or transposes.
-    
     Note: for some reason, some implementation of row and column reversals, e.g.
                X[:,:,::-1,:]
           break PyCaffe.  Numpy must be doing something under the hood (e.g. changing
@@ -424,6 +422,7 @@ if __name__ == "__main__":
         nz = np.sum(Mask==0)
         print('[train]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
+    print('[train]: mask shape: %s' % str(Mask.shape))
 
     # choose how synthetic data generation will be done
     if args.rotateData:
