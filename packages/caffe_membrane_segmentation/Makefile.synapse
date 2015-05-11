@@ -26,15 +26,17 @@ TRAIN_SLICES := "range(0,70)"
 VALID_SLICES := "range(70,100)"
 ALL_SLICES := "range(100)"
 
+# The naming convention we used was "Y_train.mat" was synapse-vs-all while
+# "Y_train2.mat" was synapse-vs-non-synapse-membranes.
 Y_TRAIN := Y_train2.mat
 
 # set ROTATE to {0,1} for {fewer,more} rotations of training data
 ROTATE := 1
 
 # Set mask to a non-empty string (filename) if you want to specify
-# a subset of the test cube to evaluate.
-#TEST_MASK := ""
-TEST_MASK := $(SYN_IN_DIR)/M5.mat
+# a subset of the test cube to evaluate (e.g. subsampling).
+TEST_MASK := ""
+#TEST_MASK := $(SYN_IN_DIR)/M5.mat
 
 
 # the trained model to use for deploy targets
