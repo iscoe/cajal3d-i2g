@@ -3,7 +3,7 @@
 %  training the random forest (RF) classifier.
 %
 %  This is a one-off script used to help produce results for 
-%  the 2015 VESICLE paper submission and is not meant for
+%  the 2015 BMVC VESICLE paper submission and is not meant for
 %  general purpose use.
 %
 %  May 2015
