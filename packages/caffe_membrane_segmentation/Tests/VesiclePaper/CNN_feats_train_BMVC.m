@@ -1,6 +1,12 @@
 %  This script extracts a subset of the CNN feature data 
 %  corresponding to the subset of pixels Will is using for
 %  training the random forest (RF) classifier.
+%
+%  This is a one-off script used to help produce results for 
+%  the 2015 VESICLE paper submission and is not meant for
+%  general purpose use.
+%
+%  May 2015
 
 idxFile = fullfile('.', 'trainBMVC_v2.mat'); 
 estFile = '/tmp/DataForWill/Yhat/Yhat_train.mat';
