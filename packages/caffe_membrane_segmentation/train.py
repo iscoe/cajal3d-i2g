@@ -417,14 +417,14 @@ if __name__ == "__main__":
         Mask = emlib.load_cube(args.maskFileName, dtype=np.bool)
         Mask = emlib.mirror_edges(Mask, borderSize)
     else:
-        Mask = np.ones(X.shape, dtype=np.bool)
+        Mask = np.ones(Xtrain.shape, dtype=np.bool)
         
     if np.any(Mask == 0):
         nz = np.sum(Mask==0)
-        print('[train]: bandpass mask is omitting %0.2f%% of the raw data' % (100 * nz / np.prod(Mask.shape)))
+        print('[train]: mask is omitting %0.2f%% of training data' % (100 * nz / np.prod(Mask.shape)))
         print('[train]:   (%0.2f%% of these pixels have label 0)' % (100* np.sum(Ytrain[~Mask]==0) / nz))
     print('[train]: mask shape: %s' % str(Mask.shape))
-    assert(np.all(Mask.shape == X.shape))
+    assert(np.all(Mask.shape == Xtrain.shape))
 
     # choose how synthetic data generation will be done
     if args.rotateData:
