@@ -36,7 +36,7 @@ Finally, if you will be running on a remote machine (e.g. GPU cluster) you can c
 ### Training
 Training the CNN involves running the COCA *train.py* script from the command-line.  The Makefile targets *train-all* and *train-and-valid* provide two examples of this procedure (the former uses the entire training volume for training while the latter holds some slices out for validation).  Assuming everything has been installed and configured properly, training is carried out from the command line via
 
-    make train-all
+    make train-and-valid
 
 If everything is working, there will be a substantial quantity of Caffe status output to stdout/stderr (redirected to a file when running the makefile) followed by messages describing training progress
 
