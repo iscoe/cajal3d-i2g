@@ -38,13 +38,16 @@ Training the CNN involves running the COCA *train.py* script from the command-li
 
     make train-and-valid
 
-If everything is working, there will be a substantial quantity of Caffe status output to stdout/stderr (redirected to a file when running the makefile) followed by messages describing training progress
+If everything is working, there will be a substantial quantity of Caffe status output to stdout/stderr (redirected to a file when running the makefile) followed by messages describing training progress:
 
-    [train]: completed iteration 1 (of 200000; 0.41 min elapsed; 0.02 CNN min)
-    [train]:    epoch: 1 (0.00), loss: 0.693, acc: 0.460, learn rate: 1.000e-03
-    [train]: completed iteration 201 (of 200000; 3.89 min elapsed; 3.47 CNN min)
-    [train]:    epoch: 1 (0.83), loss: 0.678, acc: 0.587, learn rate: 1.000e-03
-	...
+    ...
+    [emlib]: num. pixels per class label is: [1200085, 4042795]
+    [emlib]: will draw 1200085 samples from each class
+    [train]: completed iteration 1 (of 200000; 0.43 min elapsed; 0.02 CNN min)
+    [train]:    epoch: 1 (0.00), loss: 0.693, acc: 0.500, learn rate: 1.000e-03
+    [train]: completed iteration 201 (of 200000; 4.59 min elapsed; 4.14 CNN min)
+    [train]:    epoch: 1 (0.83), loss: 0.654, acc: 0.639, learn rate: 1.000e-03
+    ...
 
 After XXX hours you should see something like
 
