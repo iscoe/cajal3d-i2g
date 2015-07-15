@@ -81,7 +81,7 @@ As with the training script, progress is periodically reported to stdout.  This 
 
 
 ### References
-[Ciresan] Ciresan, D. et. al. "Deep Nerual networks segment neuronal membranes in electron microscopy images." NIPS 2012.
+[Ciresan] Ciresan, D. et. al. "Deep Neural networks segment neuronal membranes in electron microscopy images." NIPS 2012.
 
 [ISBI2012] http://brainiac2.mit.edu/isbi_challenge/home
 
