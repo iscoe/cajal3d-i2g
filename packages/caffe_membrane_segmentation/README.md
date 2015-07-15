@@ -49,9 +49,19 @@ If everything is working, there will be a substantial quantity of Caffe status o
     [train]:    epoch: 1 (0.83), loss: 0.654, acc: 0.639, learn rate: 1.000e-03
     ...
 
-After XXX hours you should see something like
+The loss and accuracy results that are reported periodically are for the training data.  Model files are saved periodically to the directory caffe_files/MembraneDetection.  After each epoch (a complete pass through the training data) performance on the held out validation data set is evaluated; for example
 
-    TODO
+    [train]: completed iteration 96001 (of 200000; 2403.78 min elapsed; 2226.51 CNN min)
+    [train]:    epoch: 4 (99.97), loss: 0.196, acc: 0.918, learn rate: 1.000e-04
+    [train]:    Evaluating on validation data (3317760 pixels)...
+    [train]: Validation results:
+          [[  465644.    61521.]
+           [  188328.  1906007.]]
+       precision=0.969, recall=0.910
+       F1=0.938
+
+For binary classification problems the validation results include a confusion matrix and reports precision, recall and F1 scores.  Note that not all the voxels in the validation data set are represented in the confusion matrix; those voxels too close to the edge of a given slice to act as a tile center are not evaluated.
+
 
 
 ### Deployment
@@ -59,6 +69,14 @@ Once a CNN model has been trained, it can be applied to new data volumes.  The m
 
     make deploy-valid
 
+As with the training script, progress is periodically reported to stdout.  This consists of showing how many voxels in the volume have been processed so far.  Unlike training, where voxels are evaluated in random orders, the deploy script evaluates the volume in order from slice 0 to slice n.  The pixel most recently evaluated [slice, row, column] is reported to stdout every two minutes:
+
+    [deploy]: CPU mode = False
+    [deploy]: Yhat shape: (2, 30, 576, 576)
+    [deploy]: processed pixel at index [  0  32 131] (0.02 min elapsed; 0.00 CNN min)
+    [deploy]: processed pixel at index [  0 230 255] (2.02 min elapsed; 1.91 CNN min)
+    [deploy]: processed pixel at index [  0 425 115] (4.02 min elapsed; 3.83 CNN min)
+    ...
 
 
 
